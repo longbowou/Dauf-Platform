@@ -1,0 +1,204 @@
+version: '3.9'
+
+services:
+  app:
+    build: app
+    platform: linux/amd64
+    command: pnpm run start:prod
+    volumes:
+      - ./app:/app
+    env_file: app/.env
+    expose:
+      - 3000
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.dauf.rule=Host(`app.dauf.danielblandes.com`)
+      - traefik.http.routers.dauf.tls=true
+      - traefik.http.routers.dauf.tls.certresolver=le
+    networks:
+      - default
+      - traefik-proxy
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: mongo:6
+    volumes:
+      - db:/data/db
+    ports:
+      - "25556:27017"
+    env_file: app/.env
+    restart: always
+
+  lsg:
+    build: app
+    platform: linux/amd64
+    command: pnpm run cli scrape-lsg -r
+    volumes:
+      - ./app:/app
+    env_file: app/.env
+    depends_on:
+      - db
+    restart: "no"
+
+  bds:
+    build: app
+    platform: linux/amd64
+    command: pnpm run cli scrape-bds -b 29 -c 4 -co
+    volumes:
+      - ./app:/app
+    env_file: app/.env
+    depends_on:
+      - db
+    restart: "no"
+
+  s21:
+    build: app
+    platform: linux/amd64
+    command: pnpm run cli scrape-s21 -r
+    volumes:
+      - ./app:/app
+    env_file: app/.env
+    depends_on:
+      - db
+    restart: "no"
+
+  mar:
+    build: app
+    platform: linux/amd64
+    command: pnpm run cli scrape-mar -r
+    volumes:
+      - ./app:/app
+    env_file: app/.env
+    depends_on:
+      - db
+    restart: "no"
+
+  darby:
+    build: app
+    platform: linux/amd64
+    command: pnpm run cli scrape-darby
+    volumes:
+      - ./app:/app
+    env_file: app/.env
+    depends_on:
+      - db
+    restart: "no"
+
+  ost:
+    build: app
+    platform: linux/amd64
+    command: pnpm run cli scrape-ost
+    volumes:
+      - ./app:/app
+    env_file: app/.env
+    depends_on:
+      - db
+    restart: "no"
+
+  bfc:
+    build: app
+    platform: linux/amd64
+    command: pnpm run cli scrape-bfc -b 39 -rb -bo
+    volumes:
+      - ./app:/app
+    env_file: app/.env
+    depends_on:
+      - db
+    restart: "no"
+
+  pdv:
+    build: app
+    platform: linux/amd64
+    command: pnpm run cli scrape-pdv -b 29 -c 4 -co
+    volumes:
+      - ./app:/app
+    env_file: app/.env
+    depends_on:
+      - db
+    restart: "no"
+
+  nsb:
+    build: app
+    platform: linux/amd64
+    command: pnpm run cli scrape-nsb -r
+    volumes:
+      - ./app:/app
+    env_file: app/.env
+    depends_on:
+      - db
+    restart: "no"
+
+  kjv:
+    build: app
+    platform: linux/amd64
+    command: pnpm run cli scrape-kjv -r
+    volumes:
+      - ./app:/app
+    env_file: app/.env
+    depends_on:
+      - db
+    restart: "no"
+
+  niv:
+    build: app
+    platform: linux/amd64
+    command: pnpm run cli scrape-niv -r
+    volumes:
+      - ./app:/app
+    env_file: app/.env
+    depends_on:
+      - db
+    restart: "no"
+
+  al:
+    build: app
+    platform: linux/amd64
+    command: pnpm run cli scrape-al
+    volumes:
+      - ./app:/app
+    env_file: app/.env
+    depends_on:
+      - db
+    restart: "no"
+
+  amp:
+    build: app
+    platform: linux/amd64
+    command: pnpm run cli scrape-amp -r
+    volumes:
+      - ./app:/app
+    env_file: app/.env
+    depends_on:
+      - db
+    restart: "no"
+
+  frontend:
+    build: frontend
+    volumes:
+      - ./frontend:/app
+    env_file: frontend/.env
+    restart: "no"
+
+  nginx:
+    image: nginx:stable-alpine
+    volumes:
+      - ./frontend/nginx:/etc/nginx/conf.d
+      - ./frontend:/app
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.dauf-nginx.rule=Host(`dauf.danielblandes.com`)
+      - traefik.http.routers.dauf-nginx.tls=true
+      - traefik.http.routers.dauf-nginx.tls.certresolver=le
+    networks:
+      - default
+      - traefik-proxy
+    restart: always
+
+volumes:
+  db:
+
+networks:
+  traefik-proxy:
+    external: true

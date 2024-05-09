@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  app:
+    command: pnpm run start:debug
+    ports:
+      - "8000:3000"
+      - "9229:9229"
+
+  db:
+    ports:
+      - "27017:27017"
+
+  frontend:
+    command: pnpm run serve
+    ports:
+      - "3000:8080"

@@ -1,0 +1,6 @@
+[submodule "app"]
+	path = app
+	url = git@github.com:longbowou/Dauf.git
+[submodule "frontend"]
+	path = frontend
+	url = git@github.com:longbowou/Dauf-Frontend.git
